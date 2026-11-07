@@ -151,7 +151,7 @@ Without rigorous governance, tagging, and automated resource lifecycle policies,
 #### Verified Case Evidence
 The primary sources reviewed ([AWS Case Study, 2020](https://aws.amazon.com/solutions/case-studies/capital-one-all-in-aws/); [Capital One Tech, 2019](https://www.capitalone.com/tech/cloud/moving-customer-facing-apps-to-aws/); [Amazon Press Release, 2016](https://press.aboutamazon.com/2016/11/capital-one-selects-aws-as-its-predominant-cloud-infrastructure-provider)) **do not disclose total enterprise migration costs, ongoing annual AWS run-rate spend, or an audited net financial savings figure** for Capital One's overall data-center exit. 
 
-*(Note: While supplementary vendor case studies on serverless computing cite workload-specific cost reductions of "up to 90%" for selected microservices, this figure is isolated to specific architectures and must not be conflated with enterprise-wide IT expenditure).*
+*(Note: While separate vendor marketing publications occasionally cite workload-specific cost reductions of "up to 90%" for selected serverless microservices, this figure is isolated to specific architectures and must not be conflated with enterprise-wide IT expenditure).*
 
 #### Analytical Evaluation
 To achieve financial efficiency in cloud environments, organizations must implement Cloud Financial Management (FinOps):
@@ -216,12 +216,12 @@ However, an academically rigorous evaluation reveals that cloud computing is not
 
 1. **Amazon Web Services.** (2020). *Capital One Case Study — All-in on AWS*. AWS Customer Success Stories.  
    URL: [https://aws.amazon.com/solutions/case-studies/capital-one-all-in-aws/](https://aws.amazon.com/solutions/case-studies/capital-one-all-in-aws/)  
-   *Verified Content:* Enterprise exit from eight on-premises data centers; average development-environment build time reduced from ~3 months to minutes; 70% decrease in DR testing time; 50% decrease in critical incident resolution time; 50% decrease in transaction errors; adoption of EC2, S3, RDS.
+   *Verified Content:* Enterprise exit from eight on-premises data centers; average development-environment build time reduced from ~3 months to minutes; 70% decrease in DR testing time; 50% decrease in critical incident resolution time; 50% decrease in transaction errors; adoption of EC2, S3, RDS. *Accessed:* November 7, 2026.
 
 2. **Capital One Tech.** (2019). *Moving a Customer-Facing App to AWS*. Capital One Technology Blog.  
    URL: [https://www.capitalone.com/tech/cloud/moving-customer-facing-apps-to-aws/](https://www.capitalone.com/tech/cloud/moving-customer-facing-apps-to-aws/)  
-   *Verified Content:* Application-specific migration of customer-facing mobile banking servicing platform; microexperience decoupled design; standardized custom AMIs with Ansible automation; Auto Scaling Groups; Route 53 weighted DNS traffic shifting (1% canary to 50/50 split); dual-region active/active expansion.
+   *Verified Content:* Application-specific migration of customer-facing mobile banking servicing platform; microexperience decoupled design; standardized custom AMIs with Ansible automation; Auto Scaling Groups; Route 53 weighted DNS traffic shifting (1% canary to 50/50 split); dual-region active/active expansion. *Accessed:* November 7, 2026.
 
 3. **Amazon.** (2016, November 28). *Capital One Selects AWS as Its Predominant Cloud Infrastructure Provider*. Amazon Press Center.  
    URL: [https://press.aboutamazon.com/2016/11/capital-one-selects-aws-as-its-predominant-cloud-infrastructure-provider](https://press.aboutamazon.com/2016/11/capital-one-selects-aws-as-its-predominant-cloud-infrastructure-provider)  
-   *Verified Content:* Formal strategic partnership announcement; selection of AWS as predominant cloud infrastructure provider; executive vision regarding cloud-native banking, engineering culture shift, and rapid software delivery velocity.
+   *Verified Content:* Formal strategic partnership announcement; selection of AWS as predominant cloud infrastructure provider; executive vision regarding cloud-native banking, engineering culture shift, and rapid software delivery velocity. *Accessed:* November 7, 2026.
