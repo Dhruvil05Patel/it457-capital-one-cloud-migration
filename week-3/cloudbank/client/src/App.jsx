@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import DemoBanner from './components/DemoBanner.jsx';
 import AccountsList from './components/AccountsList.jsx';
+import TransactionForm from './components/TransactionForm.jsx';
 import TransactionHistory from './components/TransactionHistory.jsx';
 import { getAccounts, getAccountTransactions } from './api/bank.js';
 import './App.css';
@@ -112,6 +113,22 @@ export default function App() {
     return () => controller.abort();
   }, [accounts, historyFilterId, loadTransactions]);
 
+  /**
+   * Triggered after successful deposit, withdrawal, or transfer
+   * to automatically sync balances and transaction history.
+   */
+  const handleTransactionSuccess = useCallback(async () => {
+    const controller = new AbortController();
+    try {
+      const refreshedAccounts = await getAccounts(controller.signal);
+      if (!isMountedRef.current) return;
+      setAccounts(refreshedAccounts);
+      await loadTransactions(refreshedAccounts, historyFilterId, controller.signal);
+    } catch {
+      // Error handled on subsequent user refresh if needed
+    }
+  }, [historyFilterId, loadTransactions]);
+
   const handleSelectAccount = (accountId) => {
     setSelectedAccountId(accountId);
     setHistoryFilterId(accountId);
@@ -180,7 +197,14 @@ export default function App() {
                 isLoading={isLoadingAccounts}
               />
 
-              {/* 3. Transaction History */}
+              {/* 3. Transaction Form */}
+              <TransactionForm
+                accounts={accounts}
+                selectedAccountId={selectedAccountId}
+                onTransactionSuccess={handleTransactionSuccess}
+              />
+
+              {/* 4. Transaction History */}
               <TransactionHistory
                 transactions={transactions}
                 accounts={accounts}
