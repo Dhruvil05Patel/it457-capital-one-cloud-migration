@@ -1,0 +1,46 @@
+.demo-banner {
+  position: sticky;
+  top: 0;
+  z-index: 9999;
+  background-color: #fef08a; /* High visibility alert yellow */
+  color: #854d0e;
+  border-bottom: 2px solid #eab308;
+  padding: 0.6rem 1rem;
+  font-size: 0.9rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.demo-banner-content {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  text-align: center;
+}
+
+.demo-banner-icon {
+  font-size: 1rem;
+}
+
+.demo-banner-text {
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.demo-banner-subtext {
+  opacity: 0.9;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 480px) {
+  .demo-banner {
+    padding: 0.5rem 0.75rem;
+  }
+  .demo-banner-subtext {
+    display: none; /* Keep the mandatory bold text compact on very narrow viewports */
+  }
+}
+
