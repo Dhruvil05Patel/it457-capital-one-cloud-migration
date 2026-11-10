@@ -1,5 +1,6 @@
 import React from 'react';
 import { formatInr } from '../lib/money.js';
+import LoadingSpinner from './LoadingSpinner.jsx';
 import './TransactionHistory.css';
 
 /**
@@ -63,9 +64,7 @@ export default function TransactionHistory({
       </div>
 
       {isLoading ? (
-        <div className="history-loading">
-          <p>Loading transactions...</p>
-        </div>
+        <LoadingSpinner message="Fetching transaction history..." />
       ) : transactions.length === 0 ? (
         <div className="empty-history">
           <p>No transactions found for the selected view.</p>
@@ -142,4 +141,3 @@ export default function TransactionHistory({
     </section>
   );
 }
-

@@ -3,6 +3,8 @@ import DemoBanner from './components/DemoBanner.jsx';
 import AccountsList from './components/AccountsList.jsx';
 import TransactionForm from './components/TransactionForm.jsx';
 import TransactionHistory from './components/TransactionHistory.jsx';
+import LoadingSpinner from './components/LoadingSpinner.jsx';
+import ErrorAlert from './components/ErrorAlert.jsx';
 import { getAccounts, getAccountTransactions } from './api/bank.js';
 import './App.css';
 
@@ -15,6 +17,7 @@ export default function App() {
   const [isLoadingAccounts, setIsLoadingAccounts] = useState(true);
   const [isLoadingTransactions, setIsLoadingTransactions] = useState(false);
   const [accountsError, setAccountsError] = useState(null);
+  const [transactionsError, setTransactionsError] = useState(null);
 
   const isMountedRef = useRef(true);
   useEffect(() => {
@@ -53,6 +56,7 @@ export default function App() {
   const loadTransactions = useCallback(
     async (currentAccounts, targetAccountId, signal) => {
       setIsLoadingTransactions(true);
+      setTransactionsError(null);
       try {
         if (targetAccountId) {
           const list = await getAccountTransactions(targetAccountId, signal);
@@ -88,7 +92,7 @@ export default function App() {
         }
       } catch (err) {
         if (err.name === 'AbortError' || !isMountedRef.current) return;
-        setTransactions([]);
+        setTransactionsError(err.message || 'Failed to fetch transaction history.');
       } finally {
         if (isMountedRef.current) {
           setIsLoadingTransactions(false);
@@ -125,7 +129,7 @@ export default function App() {
       setAccounts(refreshedAccounts);
       await loadTransactions(refreshedAccounts, historyFilterId, controller.signal);
     } catch {
-      // Error handled on subsequent user refresh if needed
+      // Handled silently or on next user refresh
     }
   }, [historyFilterId, loadTransactions]);
 
@@ -136,7 +140,7 @@ export default function App() {
 
   return (
     <div className="app-layout">
-      {/* 1. Mandatory Demo Notice */}
+      {/* 1. Mandatory Demo Banner */}
       <DemoBanner />
 
       <div className="app-container">
@@ -164,29 +168,18 @@ export default function App() {
 
         <main id="main-content">
           {accountsError && (
-            <div className="error-callout" role="alert">
-              <span className="error-icon" aria-hidden="true">⚠️</span>
-              <div className="error-body">
-                <strong>Backend Connection Notice: </strong>
-                <span>{accountsError}</span>
-              </div>
-              <button
-                type="button"
-                className="retry-btn"
-                onClick={() => {
-                  const controller = new AbortController();
-                  loadAccounts(controller.signal);
-                }}
-              >
-                Retry
-              </button>
-            </div>
+            <ErrorAlert
+              title="Connection Notice"
+              message={accountsError}
+              onRetry={() => {
+                const controller = new AbortController();
+                loadAccounts(controller.signal);
+              }}
+            />
           )}
 
           {isLoadingAccounts ? (
-            <div className="loading-state">
-              <p>Connecting to CloudBank and loading accounts...</p>
-            </div>
+            <LoadingSpinner message="Connecting to CloudBank and loading accounts..." />
           ) : (
             <>
               {/* 2. Accounts and Balances */}
@@ -205,6 +198,16 @@ export default function App() {
               />
 
               {/* 4. Transaction History */}
+              {transactionsError && (
+                <ErrorAlert
+                  title="Transaction History Notice"
+                  message={transactionsError}
+                  onRetry={() => {
+                    const controller = new AbortController();
+                    loadTransactions(accounts, historyFilterId, controller.signal);
+                  }}
+                />
+              )}
               <TransactionHistory
                 transactions={transactions}
                 accounts={accounts}
