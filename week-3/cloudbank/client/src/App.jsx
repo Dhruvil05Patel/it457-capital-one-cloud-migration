@@ -1,29 +1,125 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import DemoBanner from './components/DemoBanner.jsx';
-import { getHealth } from './api/bank.js';
-import { formatInr } from './lib/money.js';
+import AccountsList from './components/AccountsList.jsx';
+import TransactionHistory from './components/TransactionHistory.jsx';
+import { getAccounts, getAccountTransactions } from './api/bank.js';
 import './App.css';
 
 export default function App() {
-  const [apiStatus, setApiStatus] = useState(null);
-  const [isChecking, setIsChecking] = useState(false);
+  const [accounts, setAccounts] = useState([]);
+  const [selectedAccountId, setSelectedAccountId] = useState('');
+  const [historyFilterId, setHistoryFilterId] = useState('');
+  const [transactions, setTransactions] = useState([]);
 
-  const checkConnection = async () => {
-    setIsChecking(true);
-    setApiStatus(null);
+  const [isLoadingAccounts, setIsLoadingAccounts] = useState(true);
+  const [isLoadingTransactions, setIsLoadingTransactions] = useState(false);
+  const [accountsError, setAccountsError] = useState(null);
+
+  const isMountedRef = useRef(true);
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  /**
+   * Fetch accounts from the backend API.
+   */
+  const loadAccounts = useCallback(async (signal) => {
+    setIsLoadingAccounts(true);
+    setAccountsError(null);
     try {
-      const res = await getHealth();
-      setApiStatus({ ok: true, message: `Connected to API: ${JSON.stringify(res)}` });
+      const data = await getAccounts(signal);
+      if (!isMountedRef.current) return;
+      setAccounts(data);
+      if (data.length > 0 && !selectedAccountId) {
+        setSelectedAccountId(data[0].id);
+      }
     } catch (err) {
-      setApiStatus({ ok: false, message: `API unreachable: ${err.message}` });
+      if (err.name === 'AbortError' || !isMountedRef.current) return;
+      setAccountsError(err.message || 'Failed to fetch accounts from server.');
     } finally {
-      setIsChecking(false);
+      if (isMountedRef.current) {
+        setIsLoadingAccounts(false);
+      }
     }
+  }, [selectedAccountId]);
+
+  /**
+   * Fetch transaction history for selected account or all accounts.
+   */
+  const loadTransactions = useCallback(
+    async (currentAccounts, targetAccountId, signal) => {
+      setIsLoadingTransactions(true);
+      try {
+        if (targetAccountId) {
+          const list = await getAccountTransactions(targetAccountId, signal);
+          if (!isMountedRef.current) return;
+          const sorted = [...list].sort(
+            (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+          setTransactions(sorted);
+        } else if (currentAccounts.length > 0) {
+          const results = await Promise.allSettled(
+            currentAccounts.map((acc) => getAccountTransactions(acc.id, signal))
+          );
+          if (!isMountedRef.current) return;
+
+          const txMap = new Map();
+          results.forEach((res) => {
+            if (res.status === 'fulfilled' && Array.isArray(res.value)) {
+              res.value.forEach((tx) => {
+                const key = tx.id || `${tx.accountId}-${tx.createdAt}-${tx.amountPaise}`;
+                if (!txMap.has(key)) {
+                  txMap.set(key, tx);
+                }
+              });
+            }
+          });
+
+          const merged = Array.from(txMap.values()).sort(
+            (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+          setTransactions(merged);
+        } else {
+          setTransactions([]);
+        }
+      } catch (err) {
+        if (err.name === 'AbortError' || !isMountedRef.current) return;
+        setTransactions([]);
+      } finally {
+        if (isMountedRef.current) {
+          setIsLoadingTransactions(false);
+        }
+      }
+    },
+    []
+  );
+
+  // Initial load
+  useEffect(() => {
+    const controller = new AbortController();
+    loadAccounts(controller.signal);
+    return () => controller.abort();
+  }, [loadAccounts]);
+
+  // Load transactions when filter or accounts change
+  useEffect(() => {
+    if (accounts.length === 0) return;
+    const controller = new AbortController();
+    loadTransactions(accounts, historyFilterId, controller.signal);
+    return () => controller.abort();
+  }, [accounts, historyFilterId, loadTransactions]);
+
+  const handleSelectAccount = (accountId) => {
+    setSelectedAccountId(accountId);
+    setHistoryFilterId(accountId);
   };
 
   return (
     <div className="app-layout">
-      {/* Persistent Demo Notice */}
+      {/* 1. Mandatory Demo Notice */}
       <DemoBanner />
 
       <div className="app-container">
@@ -35,50 +131,65 @@ export default function App() {
               <p>Simulated Digital Banking & AWS Cloud Migration Case Study</p>
             </div>
           </div>
+          <button
+            type="button"
+            className="refresh-btn"
+            onClick={() => {
+              const controller = new AbortController();
+              loadAccounts(controller.signal);
+            }}
+            disabled={isLoadingAccounts || isLoadingTransactions}
+            title="Refresh accounts and balances"
+          >
+            ↻ Refresh
+          </button>
         </header>
 
         <main id="main-content">
-          <section className="scaffold-card" aria-labelledby="scaffold-heading">
-            <h2 id="scaffold-heading" className="scaffold-title">Client Dashboard Scaffold</h2>
-            <p className="scaffold-desc">
-              React/Vite scaffold initialized with strict integer-paise money handling and REST API client module.
-            </p>
-
-            <div className="scaffold-details">
-              <div className="scaffold-item">
-                <span className="scaffold-label">Money Utility Status:</span>
-                <span className="scaffold-value">
-                  Active ({formatInr(100000)} formatted from 100,000 paise)
-                </span>
+          {accountsError && (
+            <div className="error-callout" role="alert">
+              <span className="error-icon" aria-hidden="true">⚠️</span>
+              <div className="error-body">
+                <strong>Backend Connection Notice: </strong>
+                <span>{accountsError}</span>
               </div>
-              <div className="scaffold-item">
-                <span className="scaffold-label">API Client Base URL:</span>
-                <code className="scaffold-code">
-                  {import.meta.env.VITE_API_BASE_URL || '/api'}
-                </code>
-              </div>
-            </div>
-
-            <div className="scaffold-actions">
               <button
                 type="button"
-                className="test-btn"
-                onClick={checkConnection}
-                disabled={isChecking}
+                className="retry-btn"
+                onClick={() => {
+                  const controller = new AbortController();
+                  loadAccounts(controller.signal);
+                }}
               >
-                {isChecking ? 'Checking API...' : 'Test Backend Connection (/api/health)'}
+                Retry
               </button>
             </div>
+          )}
 
-            {apiStatus && (
-              <div
-                className={`status-box ${apiStatus.ok ? 'status-ok' : 'status-err'}`}
-                role="status"
-              >
-                {apiStatus.message}
-              </div>
-            )}
-          </section>
+          {isLoadingAccounts ? (
+            <div className="loading-state">
+              <p>Connecting to CloudBank and loading accounts...</p>
+            </div>
+          ) : (
+            <>
+              {/* 2. Accounts and Balances */}
+              <AccountsList
+                accounts={accounts}
+                selectedAccountId={selectedAccountId}
+                onSelectAccount={handleSelectAccount}
+                isLoading={isLoadingAccounts}
+              />
+
+              {/* 3. Transaction History */}
+              <TransactionHistory
+                transactions={transactions}
+                accounts={accounts}
+                selectedAccountId={historyFilterId}
+                onAccountFilterChange={(id) => setHistoryFilterId(id)}
+                isLoading={isLoadingTransactions}
+              />
+            </>
+          )}
         </main>
       </div>
     </div>
