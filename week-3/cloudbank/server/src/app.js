@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { checkHealth } from './db/pool.js';
+import { accountsRouter } from './routes/accounts.js';
 
 export const app = express();
 
@@ -30,6 +31,9 @@ apiRouter.get('/health', async (req, res) => {
     },
   });
 });
+
+// Accounts & Account Transactions Routes
+apiRouter.use('/accounts', accountsRouter);
 
 // Mount API router under /api
 app.use('/api', apiRouter);
