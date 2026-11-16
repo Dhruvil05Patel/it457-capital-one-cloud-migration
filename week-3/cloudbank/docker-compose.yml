@@ -1,0 +1,104 @@
+# ==============================================================================
+# CloudBank — Container Orchestration (Docker Compose)
+# IT457 Cloud Computing | Week 3 | Group 41
+# Author: Aryan Rathod (202301164) — Docker, Deployment & Infrastructure
+# ==============================================================================
+# Architecture:
+#   1. postgres: Internal database container with persistent named volume.
+#                Port 5432 is strictly internal (NEVER published to host/internet).
+#   2. backend:  Node.js Express REST API connected to postgres via internal network.
+#   3. frontend: React + Vite web client served via Nginx with /api proxy.
+# ==============================================================================
+
+version: '3.8'
+
+services:
+  # ----------------------------------------------------------------------------
+  # PostgreSQL Database Service
+  # ----------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: cloudbank_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${PGDATABASE:-cloudbank}
+      POSTGRES_USER: ${PGUSER:-cloudbank}
+      POSTGRES_PASSWORD: ${PGPASSWORD:-cloudbank_secret}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - ./database/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+    # Security constraint: Port 5432 is NOT exposed to the host
+    networks:
+      - cloudbank_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PGUSER:-cloudbank} -d ${PGDATABASE:-cloudbank}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  # ----------------------------------------------------------------------------
+  # Express Backend API Service
+  # ----------------------------------------------------------------------------
+  backend:
+    container_name: cloudbank_api
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    environment:
+      PORT: 3000
+      NODE_ENV: ${NODE_ENV:-production}
+      PGHOST: postgres
+      PGPORT: 5432
+      PGUSER: ${PGUSER:-cloudbank}
+      PGPASSWORD: ${PGPASSWORD:-cloudbank_secret}
+      PGDATABASE: ${PGDATABASE:-cloudbank}
+      DATABASE_URL: postgres://${PGUSER:-cloudbank}:${PGPASSWORD:-cloudbank_secret}@postgres:5432/${PGDATABASE:-cloudbank}
+      SUSPICIOUS_THRESHOLD_PAISE: ${SUSPICIOUS_THRESHOLD_PAISE:-5000000}
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - cloudbank_net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  # ----------------------------------------------------------------------------
+  # React + Vite Frontend Client Service
+  # ----------------------------------------------------------------------------
+  frontend:
+    container_name: cloudbank_client
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile.client
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - cloudbank_net
+
+# ------------------------------------------------------------------------------
+# Persistent Named Volumes
+# ------------------------------------------------------------------------------
+volumes:
+  postgres_data:
+    name: cloudbank_postgres_data
+
+# ------------------------------------------------------------------------------
+# Internal Private Bridge Network
+# ------------------------------------------------------------------------------
+networks:
+  cloudbank_net:
+    name: cloudbank_network
+    driver: bridge
