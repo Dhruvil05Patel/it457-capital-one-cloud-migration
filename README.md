@@ -275,6 +275,7 @@ it457-capital-one-cloud-migration/
 │       ├── deploy-aws.sh                     # Automated CLI provisioning script (EC2, RDS, VPC)
 │       └── teardown-aws.sh                   # 1-click teardown script to guarantee zero cost
 └── week-4/
+    ├── ARCHITECTURE-DIAGRAMS.md              # Final visual architecture diagrams (Mermaid & ASCII)
     ├── PERFORMANCE-EFFORT-COST-REPORT.md     # In-depth benchmark, effort & TCO report
     └── cloudbank-loadtest.jmx                # Apache JMeter load testing test plan
 ```
