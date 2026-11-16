@@ -1,0 +1,35 @@
+# ==============================================================================
+# CloudBank — Backend API Dockerfile
+# IT457 Cloud Computing | Week 3 | Group 41
+# Author: Aryan Rathod (202301164) — Docker, Deployment & Infrastructure
+# ==============================================================================
+
+FROM node:20-alpine
+
+# Set working directory inside container
+WORKDIR /app
+
+# Set production environment
+ENV NODE_ENV=production
+
+# Install wget for container health checks
+RUN apk add --no-cache wget
+
+# Copy server package definition
+COPY server/package.json ./
+
+# Install production dependencies only
+RUN npm install --omit=dev
+
+# Copy server application source code
+COPY server/src ./src
+
+# Expose Express server port
+EXPOSE 3000
+
+# Container healthcheck querying /api/health
+HEALTHCHECK --interval=10s --timeout=5s --start-period=5s --retries=3 \
+  CMD wget -qO- http://localhost:3000/api/health || exit 1
+
+# Start the API server
+CMD ["node", "src/server.js"]
