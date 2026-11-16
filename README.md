@@ -1,121 +1,298 @@
-# Capital One: Cloud Migration to AWS
+# CloudBank — Capital One Cloud Migration Case Study & Modernization Lab
+### IT457 – Cloud Computing | Group 41 · DA-IICT
 
-**IT457 – Cloud Computing Case Study Project**
+[![AWS Architecture](https://img.shields.io/badge/AWS-EC2%20%2B%20RDS%20PostgreSQL-orange?logo=amazon-aws)](https://aws.amazon.com/)
+[![Docker Compose](https://img.shields.io/badge/Docker-Multi--Tier%20Compose-blue?logo=docker)](https://www.docker.com/)
+[![License](https://img.shields.io/badge/License-Academic%20Evaluation-green.svg)](#)
+[![Status](https://img.shields.io/badge/Deployment-Live%20on%20AWS-success)](http://35.154.113.220)
 
-A comprehensive case study and practical evaluation of Capital One's transition from on-premises enterprise data centers to Amazon Web Services (AWS), focusing on cloud migration strategies, architectural modernization, elasticity, operational resilience, and cost governance.
+A comprehensive case study and hands-on cloud migration implementation replicating **Capital One's enterprise-wide exit from physical on-premises data centers to Amazon Web Services (AWS)**. This repository houses the complete theoretical research, containerized digital banking application (**CloudBank**), single-command AWS cloud deployment runbook, empirical load benchmarking, and Total Cost of Ownership (TCO) financial modeling.
 
 ---
 
-## 👥 Group Members & Roles
+## 🌐 Live AWS Cloud Deployment
 
-| Name | Student ID | Primary Focus Areas |
+CloudBank is actively deployed and running on **AWS Free Tier infrastructure** in region `ap-south-1` (Mumbai):
+
+| Tier | Public Endpoint | Status | Technology / Details |
+|---|---|:---:|---|
+| **Web Dashboard** | **[http://35.154.113.220](http://35.154.113.220)** | **`200 OK` (Live)** | React + Vite Single Page Application served via Nginx on port 80 |
+| **API Health Ping** | **[http://35.154.113.220/api/health](http://35.154.113.220/api/health)** | **`200 OK` (Live)** | Node.js Express REST API connected to Amazon RDS PostgreSQL |
+| **Accounts API** | **[http://35.154.113.220/api/accounts](http://35.154.113.220/api/accounts)** | **`200 OK` (Live)** | Real-time balance queries executed against Amazon RDS |
+
+---
+
+## 👥 Group 41 Team Members & Ownership
+
+| Name | Student ID | Core Engineering & Research Ownership |
 |---|---|---|
-| **Dhruvil Patel** | 202301035 | Week 1 documentation & research baseline; consistency, quality, and deliverables review |
-| **Kavish Patel** | 202301074 | In-depth case study analysis, problem & solution strategy, primary source verification |
-| **Aryan Rathod** | 202301164 | Conceptual cloud architecture diagram, practical exercise plan, team roles, report formatting |
+| **Dhruvil Patel** | 202301035 | **Frontend Architecture, Performance Benchmarking & Cost Modeling**<br>React/Vite SPA dashboard, currency formatting (paise to INR), empirical Apache Bench (`ab`) load testing, Apache JMeter (`.jmx`) test suite design, and 3-year TCO financial modeling. |
+| **Kavish Patel** | 202301074 | **Backend REST API & Database Systems**<br>Node.js Express REST API, PostgreSQL database schema (`init.sql`) & deterministic seed (`seed.sql`), atomic `BEGIN...COMMIT` transaction engine with row-level locking (`FOR UPDATE`), and automated API unit/integration tests. |
+| **Aryan Rathod** | 202301164 | **Docker Containerization & AWS Infrastructure Deployment**<br>Multi-tier Docker Compose orchestration (`Dockerfile.client`, `Dockerfile.server`), defense-in-depth VPC security groups, Amazon EC2 & RDS automation scripts (`deploy-aws.sh`, `teardown-aws.sh`), and cloud runbook documentation. |
 
 ---
 
-## 📌 Project Overview
+## 🗓️ 4-Week Milestone Roadmap & Key Deliverables
 
-Capital One Financial Corporation, a major US financial services institution, completed an enterprise-wide cloud transformation in 2020 by exiting all eight of its on-premises data centers and moving core workloads to AWS. This case study examines:
-- **Strategic Drivers:** The transition from legacy infrastructure procurement bottlenecks to software-led digital banking agility.
-- **Architecture Modernization:** Decoupling monolithic application backends into independently scalable "microexperiences", utilizing custom Amazon Machine Images (AMIs), and adopting managed services (Amazon RDS, Amazon S3).
-- **Migration & Cutover Mechanics:** Phased canary cutovers using Amazon Route 53 weighted DNS (from 1% live traffic to a 50/50 split) and multi-region active/active redundancy.
-- **Operational Outcomes:** Evaluating vendor-reported metrics (provisioning time reduction from ~3 months to minutes, 70% decrease in DR testing time, 50% decrease in incident resolution time and errors).
-- **Evidentiary Rigor:** Differentiating enterprise-wide milestones from application-specific patterns and highlighting undisclosed financial ROI.
-- **Hands-On Migration Lab:** A 5-phase practical exercise deploying a containerized application to cloud infrastructure and refactoring a component to a managed service.
+```text
+ ┌─────────────────┐      ┌─────────────────┐      ┌─────────────────┐      ┌─────────────────┐
+ │     Week 1      │      │     Week 2      │      │     Week 3      │      │     Week 4      │
+ │  Case Study &   │ ──►  │ Architectural   │ ──►  │ Containerize &  │ ──►  │  Benchmarking,  │
+ │ Problem Analysis│      │  5-Phase Plan   │      │ AWS Deployment  │      │ Effort & TCO    │
+ └─────────────────┘      └─────────────────┘      └─────────────────┘      └─────────────────┘
+```
 
----
-
-## 📄 Weekly Reports & Deliverables
-
-| Milestone | Deliverable PDF | Markdown Documentation | Key Focus |
-|---|---|---|---|
-| **Week 1** | [Week1_Report_Group41.pdf](Week1_Report_Group41.pdf) | [docs/week-1/week-1-summary.md](docs/week-1/week-1-summary.md) | Initial case study overview, problem motivation, high-level AWS services, and reported outcomes. |
-| **Week 2** | [Week2_Report_Group41.pdf](Week2_Report_Group41.pdf) | [docs/week-2/week-2-summary.md](docs/week-2/week-2-summary.md) | In-depth problem analysis across 6 dimensions, architecture diagram, 5-phase lab plan, and source log. |
+| Milestone | Deliverable Document | Primary Scope & Achievements |
+|---|---|---|
+| **Week 1** | [Week1_Report_Group41.pdf](Week1_Report_Group41.pdf) · [docs/week-1/week-1-summary.md](docs/week-1/week-1-summary.md) | Initial case study research, problem motivation, legacy hardware provisioning bottlenecks, vendor-reported outcomes. |
+| **Week 2** | [Week2_Report_Group41.pdf](Week2_Report_Group41.pdf) · [docs/week-2/week-2-summary.md](docs/week-2/week-2-summary.md) | Comprehensive 6-dimension problem analysis, conceptual architecture diagram, 5-phase practical exercise roadmap. |
+| **Week 3** | [week-3/cloudbank/DEPLOYMENT.md](week-3/cloudbank/DEPLOYMENT.md) · [week-3/cloudbank/docker-compose.yml](week-3/cloudbank/docker-compose.yml) | Multi-tier Docker Compose stack, internal database networking, automated health checks, single-EC2 & Amazon RDS production runbook. |
+| **Week 4** | [week-4/PERFORMANCE-EFFORT-COST-REPORT.md](week-4/PERFORMANCE-EFFORT-COST-REPORT.md) · [week-4/cloudbank-loadtest.jmx](week-4/cloudbank-loadtest.jmx) | Empirical Apache Bench (`ab`) load testing, Apache JMeter test suite, engineering effort analysis, 3-year TCO financial modeling. |
 
 ---
 
-## 🔍 Case Study Scope & Problem Dimensions
+## 🏛️ Architecture Modernization Pattern
 
-Our Week 2 analysis evaluates six core operational dimensions of Capital One's migration:
+To reflect Capital One’s journey, CloudBank implements two distinct architectures: **Local Containerized Baseline** (representing self-hosted legacy operations) and **Modernized AWS Cloud Production** (managed cloud services with zero public database exposure).
 
-1. **Infrastructure Provisioning Latency:** Transition from manual ~3-month hardware staging to automated minutes-long provisioning via Infrastructure as Code (IaC) and custom AMIs.
-2. **Monolithic Application Coupling:** Deconstructing monolithic backends into modular "microexperiences" with managed persistence (Amazon RDS).
-3. **Migration & Cutover Continuity:** Mitigating "big-bang" migration outages through phased canary routing using Amazon Route 53 weighted DNS (1% canary scaled to 50/50).
-4. **Availability & Disaster Recovery:** Shifting from disruptive manual active-passive failover drills to multi-Availability Zone and multi-region active/active automated redundancy.
-5. **Security, Governance & Compliance:** Moving from perimeter "castle-and-moat" security to DevSecOps, immutable AMIs, and least-privilege IAM under the AWS Shared Responsibility Model.
-6. **Cost Governance (FinOps):** Transitioning fixed CapEx into variable OpEx with dynamic auto-scaling, resource tagging, and cloud pricing modeling.
+### Local Baseline vs. AWS Cloud Modernization
+
+```text
+================================== LOCAL DOCKER BASELINE ==================================
+  Developer Laptop (Localhost)
+    │ Port 80
+    ▼
+  [ Frontend: React + Vite (Nginx) ] ── (Internal Network) ──► [ Backend: Express API (Port 3000) ]
+                                                                             │
+                                                                             │ Port 5432 (Internal)
+                                                                             ▼
+                                                                [ Database: PostgreSQL 16 ]
+                                                                             │
+                                                                             ▼
+                                                                [ Named Volume: postgres_data ]
+
+=============================== AWS CLOUD MODERNIZED PRODUCTION ===========================
+  Public Users (Internet)
+    │ HTTP (Port 80)
+    ▼
+  ┌────────────────────────────────────────────────────────────────────────────────────────┐
+  │  EC2 Security Group: cloudbank-ec2-sg (Port 80 Public | Port 22 SSH Restricted)        │
+  │  ┌──────────────────────────────────────────────────────────────────────────────────┐  │
+  │  │ Amazon EC2 Instance: t3.micro (Ubuntu 22.04 LTS, 1 vCPU, 1 GB RAM)                │  │
+  │  │  - cloudbank_client (Nginx SPA Reverse Proxy)                                    │  │
+  │  │  - cloudbank_api (Node.js Express REST API)                                      │  │
+  │  └────────────────────────────────────────┬─────────────────────────────────────────┘  │
+  └───────────────────────────────────────────┼────────────────────────────────────────────┘
+                                              │ Port 5432 (Encrypted TLSv1.3 over VPC)
+                                              ▼
+  ┌────────────────────────────────────────────────────────────────────────────────────────┐
+  │  RDS Security Group: cloudbank-rds-sg (Port 5432 Inbound ONLY from cloudbank-ec2-sg)   │
+  │  ┌──────────────────────────────────────────────────────────────────────────────────┐  │
+  │  │ Amazon RDS for PostgreSQL: db.t3.micro (PostgreSQL 16.15, 20 GB gp3)             │  │
+  │  │  - Zero Public Access (100% Private to VPC)                                      │  │
+  │  │  - Automated Point-in-Time Snapshots, Automated Minor Version Upgrades           │  │
+  │  └──────────────────────────────────────────────────────────────────────────────────┘  │
+  └────────────────────────────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-## 🧪 Practical Hands-On Migration Plan
+## 🚀 Quick Start Guide (Local Development)
 
-To empirically ground these cloud computing principles, the group has developed a safe, 5-phase practical laboratory plan using a non-sensitive containerized application:
+### Prerequisites
+- [Docker Engine (v24+) & Docker Compose (v2+)](https://docs.docker.com/engine/install/)
+- Docker Desktop running on macOS, Linux, or Windows
 
-- **Phase A — Local Baseline:** Dockerize a minimal web application and record performance and setup baselines.
-- **Phase B — Cloud Deployment:** Provision an AWS/cloud virtual machine with restricted security group ingress rules and deploy the container.
-- **Phase C — Telemetry & Validation:** Execute repeatable HTTP benchmark tests (latency p50/p95/p99, error rates) and health-check monitoring under synthetic load.
-- **Phase D — Managed-Service Refactoring:** Evaluate refactoring one component (e.g., static assets to Amazon S3 or database to Amazon RDS).
-- **Phase E — FinOps & Teardown:** Project monthly running costs using the AWS Pricing Calculator and immediately terminate all cloud resources.
+### 1. Clone & Configure Environment
+```bash
+git clone https://github.com/Dhruvil05Patel/it457-capital-one-cloud-migration.git
+cd it457-capital-one-cloud-migration/week-3/cloudbank
 
-> **Operational Guidelines:** Strict zero-credentials policy (no keys, secrets, or `.env` files in git) and zero sensitive customer/financial data.
+# Copy example environment configuration
+cp .env.example .env
+```
+
+### 2. Build & Launch Containers
+```bash
+docker compose up -d --build
+```
+
+### 3. Verify Health & Process Status
+```bash
+docker compose ps
+```
+
+*Expected Status:*
+```text
+NAME               IMAGE                STATUS                   PORTS
+cloudbank_api      cloudbank-backend    Up (healthy)             0.0.0.0:3000->3000/tcp
+cloudbank_client   cloudbank-frontend   Up (healthy)             0.0.0.0:80->80/tcp
+cloudbank_db       postgres:16-alpine   Up (healthy)             5432/tcp (Internal only)
+```
+
+Open **`http://localhost`** in your browser to view the live dashboard.
 
 ---
 
-## 📂 Repository Structure
+## 🧪 Shared 9-Step Verification Smoke Test
+
+All team members and evaluators verify system functionality across both local and AWS deployments using this standardized test suite:
+
+| Step | Action | Expected Output | Verification Status |
+|:---:|---|---|:---:|
+| **1** | **Clean Startup** | All 3 containers report `Up (healthy)` via automated Docker health checks. | **PASS** |
+| **2** | **Initial State** | Dashboard displays "Demo Checking" (₹10,000.00) and "Demo Savings" (₹5,000.00). | **PASS** |
+| **3** | **Deposit** | Deposit ₹1,000 into Demo Checking. Checking balance updates to **₹11,000.00**. | **PASS** |
+| **4** | **Withdrawal** | Withdraw ₹200 from Demo Checking. Checking balance updates to **₹10,800.00**. | **PASS** |
+| **5** | **Atomic Transfer** | Transfer ₹500 from Checking to Savings. Checking becomes **₹10,300.00**; Savings becomes **₹5,500.00** in an atomic `BEGIN...COMMIT` transaction with row-level locking (`FOR UPDATE`). | **PASS** |
+| **6** | **Overdraft Protection** | Attempt to withdraw ₹50,000 from Savings. Returns `409 Insufficient funds`; balances remain completely unchanged. | **PASS** |
+| **7** | **Fraud Threshold Flag** | Deposit or transfer ₹50,000 (5,000,000 paise). Transaction succeeds and is flagged with a prominent **`🚩 Flagged`** badge (`isSuspicious: true`). | **PASS** |
+| **8** | **Data Persistence** | Restart containers (`docker compose restart`). All balances and transaction records persist from the named volume `cloudbank_postgres_data` (or Amazon RDS). | **PASS** |
+| **9** | **API Health Probe** | `curl -i http://localhost:3000/api/health` returns HTTP `200 OK` with `{"data":{"status":"ok"}}`. | **PASS** |
+
+---
+
+## ☁️ AWS Cloud Deployment & Operations
+
+CloudBank's production environment runs under **100% AWS Free Tier** constraints with automated provisioning scripts:
+
+- **Deployment Runbook**: Detailed instructions in **[week-3/cloudbank/DEPLOYMENT.md](week-3/cloudbank/DEPLOYMENT.md)**.
+- **Production Compose File**: **[week-3/cloudbank/docker-compose.aws.yml](week-3/cloudbank/docker-compose.aws.yml)**.
+
+### 1. One-Click Automated AWS Deployment
+Ensure the AWS CLI is configured (`aws configure` in region `ap-south-1`):
+```bash
+cd week-3/cloudbank
+./deploy-aws.sh
+```
+*What the script provisions automatically:*
+1. Detects your Default VPC and creates linked Security Groups (`cloudbank-ec2-sg` and `cloudbank-rds-sg`).
+2. Provisions Amazon RDS PostgreSQL (`db.t3.micro`, 20 GB gp3, Free Tier).
+3. Launches Amazon EC2 instance (`t3.micro`, Ubuntu 22.04 LTS).
+4. Seeds RDS with tables and initial accounts (`init.sql` and `seed.sql`) via private VPC network.
+5. Deploys frontend and backend containers via Docker Compose and outputs the live public URL.
+
+### 2. One-Click Cost-Zero Teardown
+When testing is complete, eliminate all running cloud resources:
+```bash
+cd week-3/cloudbank
+./teardown-aws.sh
+```
+*Terminates the EC2 instance, deletes the RDS database (skipping final snapshots), and removes all security groups to guarantee $0.00 ongoing charges.*
+
+---
+
+## 📈 Empirical Performance Benchmarking (Week 4)
+
+Performance was empirically measured across both environments using **Apache Bench (`ab` v2.3)**, with an accompanying **Apache JMeter (`.jmx`)** test plan.
+
+> [!NOTE]
+> **FinOps Principle**: In accordance with cloud financial management standards, high-volume stress testing (10,000 requests) was executed on local Docker to find saturation limits, while AWS Cloud load was capped at a safe 1,000-request threshold to preserve burstable CPU credits and prevent unexpected egress bandwidth charges.
+
+### Side-by-Side Performance Comparison
+
+| Metric | Target | Health Check (`/api/health`) | Accounts Read (`/api/accounts`) | Deposit Write (`/transactions/deposit`) | Local 10k Scalability Stress Test |
+|---|---|:---:|:---:|:---:|:---:|
+| **Throughput (req/sec)** | **Local Docker** | **2,792.66** | **3,493.40** | **1,446.63** | **3,850.52** |
+| | **AWS Cloud (EC2+RDS)** | **716.17** | **920.57** | **268.13** | *(Capped for FinOps)* |
+| **Mean Latency (ms)** | **Local Docker** | **3.58 ms** | **2.86 ms** | **6.91 ms** | **25.97 ms** |
+| | **AWS Cloud (EC2+RDS)** | **13.96 ms** | **10.86 ms** | **37.30 ms** | *(Capped for FinOps)* |
+| **p50 Latency (ms)** | **Local Docker** | **3 ms** | **2 ms** | **3 ms** | **25 ms** |
+| | **AWS Cloud (EC2+RDS)** | **10 ms** | **10 ms** | **16 ms** | *(Capped for FinOps)* |
+| **p95 Latency (ms)** | **Local Docker** | **6 ms** | **5 ms** | **23 ms** | **43 ms** |
+| | **AWS Cloud (EC2+RDS)** | **19 ms** | **16 ms** | **139 ms** | *(Capped for FinOps)* |
+| **p99 Latency (ms)** | **Local Docker** | **24 ms** | **12 ms** | **46 ms** | **52 ms** |
+| | **AWS Cloud (EC2+RDS)** | **27 ms** | **21 ms** | **313 ms** | *(Capped for FinOps)* |
+| **Error Rate (%)** | **Local Docker** | **0.00%** | **0.00%** | **0.00%** | **0.00%** |
+| | **AWS Cloud (EC2+RDS)** | **0.00%** | **0.00%** | **0.00%** | *(Zero dropped connections)* |
+
+### Apache JMeter Test Suite
+The repository includes an Apache JMeter test plan:
+- **Test Plan File**: **[`week-4/cloudbank-loadtest.jmx`](week-4/cloudbank-loadtest.jmx)**
+- **Features**: Parameterized host/port, Thread Groups for 10, 50, and 100 concurrent users, JSON Header Managers, and HTTP 200/201 response assertions.
+- **Run via CLI**:
+  ```bash
+  jmeter -n -t week-4/cloudbank-loadtest.jmx -Jhost=35.154.113.220 -Jport=80 -l week-4/results.jtl -e -o week-4/dashboard/
+  ```
+
+---
+
+## ⏱️ Engineering & Operational Effort Comparison
+
+| Lifecycle Phase | Local Docker (Self-Hosted) | AWS Modernized Cloud | Variance | Strategic Benefit |
+|---|:---:|:---:|:---:|---|
+| **Upfront Architecture & Setup** | ~26 person-hours | ~37 person-hours | +42% | Extra investment in VPC security groups, TLS, and automation scripts. |
+| **Routine OS & DB Patching** | 12 hrs / month | 1 hr / month | **-92%** | Managed RDS automates minor engine patches during maintenance windows. |
+| **Backup Management & Recovery** | 8 hrs / month | 0.5 hr / month | **-94%** | Automated daily snapshots and point-in-time recovery vs. manual cron dumps. |
+| **High Availability Setup** | 40 hrs (one-time) | 1 hr (one-time) | **-97%** | Single console toggle for Multi-AZ vs. manual Patroni/Corosync clustering. |
+| **Annual Operational Maintenance** | **~240 hrs / year** | **~24 hrs / year** | **-90%** | **Saves 216 hours of engineering time annually (5.4 developer work-weeks).** |
+
+---
+
+## 💰 Total Cost of Ownership (TCO) & Financial ROI
+
+```text
+  Monthly Expense Comparison:
+  ══════════════════════════════════════════════════════════════════════════════════
+  On-Premises Legacy Hardware:  $485.36 / month  ██████████████████████████████████
+  AWS Commercial (Post-Free):    $63.87 / month  █████ (86.8% Reduction)
+  AWS Free Tier (Current):        $0.00 / month  ▏     (100.0% Reduction)
+  ══════════════════════════════════════════════════════════════════════════════════
+```
+
+| Financial Dimension | On-Premises Legacy Baseline | AWS Cloud Modernized (Post-Free Tier) | Net Variance |
+|---|:---:|:---:|:---:|
+| **Upfront Capital Expenditure (CapEx)** | $1,800.00 (Server hardware) | **$0.00** | **-100%** |
+| **Monthly Infrastructure Hosting** | $165.36 (Rack rent, power, cooling, parts) | **$23.87** (EC2 + RDS + EBS + Bandwidth) | **-85.6%** |
+| **Monthly Operational Labor** | $320.00 (8 hrs/mo @ $40/hr) | **$40.00** (1 hr/mo review @ $40/hr) | **-87.5%** |
+| **Total Monthly TCO** | **$485.36 / month** | **$63.87 / month** | **86.8% Reduction ($421.49 saved/mo)** |
+| **3-Year Total Cost of Ownership** | **$17,472.96** | **$2,299.32** | **3-Year Net Savings: $15,173.64** |
+| **Cost per 10,000 Transactions** | ~$0.485 | **~$0.024** | **20.2x Cost Efficiency** |
+
+---
+
+## 📂 Repository File Directory
 
 ```text
 it457-capital-one-cloud-migration/
-├── README.md
-├── Week1_Report_Group41.pdf
-├── Week2_Report_Group41.pdf
-└── docs/
-    ├── week-1/
-    │   ├── architecture-notes.md
-    │   ├── sources.md
-    │   └── week-1-summary.md
-    └── week-2/
-        ├── architecture-diagram.md
-        ├── case-study-analysis.md
-        ├── exercise-plan.md
-        ├── problem-and-solution.md
-        ├── sources.md
-        ├── team-roles.md
-        └── week-2-summary.md
+├── README.md                                 # Master project documentation (Single Source of Truth)
+├── Week1_Report_Group41.pdf                  # Week 1 formal submission report
+├── Week2_Report_Group41.pdf                  # Week 2 formal submission report
+├── docs/                                     # Research and case study documentation
+│   ├── week-1/                               # Initial research baseline, architecture notes, sources
+│   └── week-2/                               # Case study analysis, problem-and-solution matrix, exercise plan
+├── week-3/
+│   └── cloudbank/                            # CloudBank application source code & infrastructure
+│       ├── client/                           # React + Vite frontend single-page dashboard
+│       ├── server/                           # Node.js Express REST API backend
+│       ├── database/                         # init.sql schema and seed.sql test data
+│       ├── Dockerfile.client                 # Multi-stage Nginx build for client
+│       ├── Dockerfile.server                 # Lightweight Node.js Alpine image for API
+│       ├── docker-compose.yml                # Local multi-tier Docker Compose specification
+│       ├── docker-compose.aws.yml            # Production EC2 + Amazon RDS Compose specification
+│       ├── nginx.conf                        # Reverse proxy routing /api/* to backend container
+│       ├── DEPLOYMENT.md                     # Complete AWS Free Tier deployment runbook
+│       ├── deploy-aws.sh                     # Automated CLI provisioning script (EC2, RDS, VPC)
+│       └── teardown-aws.sh                   # 1-click teardown script to guarantee zero cost
+└── week-4/
+    ├── PERFORMANCE-EFFORT-COST-REPORT.md     # In-depth benchmark, effort & TCO report
+    └── cloudbank-loadtest.jmx                # Apache JMeter load testing test plan
 ```
 
-### Documentation Breakdown
-
-| Directory | File | Purpose |
-|---|---|---|
-| **Root** | `Week1_Report_Group41.pdf` | Week 1 Summary report deliverable |
-| **Root** | `Week2_Report_Group41.pdf` | Week 2 Summary report deliverable |
-| **`docs/week-1/`** | `week-1-summary.md` | Initial case study overview and reported outcomes |
-| | `architecture-notes.md` | High-level notes on AWS services (EC2, S3, RDS) |
-| | `sources.md` | Initial reference links |
-| **`docs/week-2/`** | `week-2-summary.md` | Week 2 summary corresponding to the PDF report |
-| | `case-study-analysis.md` | Comprehensive analysis of Capital One's AWS migration |
-| | `problem-and-solution.md` | Problem analysis and solution matrix |
-| | `architecture-diagram.md` | Conceptual cloud architecture with Mermaid diagram |
-| | `exercise-plan.md` | 5-phase practical hands-on cloud migration plan |
-| | `sources.md` | Formal source verification and evidence log |
-| | `team-roles.md` | Group 41 member responsibilities and review gates |
-
 ---
 
-## 📚 Verified Primary Sources
+## 📚 Verified Primary Sources & References
 
 1. **Amazon Web Services (AWS).** (2020). *Capital One Case Study — All-in on AWS*. [AWS Customer Success Stories](https://aws.amazon.com/solutions/case-studies/capital-one-all-in-aws/).  
-   *Verified Content:* Enterprise exit from eight data centers; environment build times reduced from ~3 months to minutes; 70% decrease in DR testing duration; 50% decrease in critical incident resolution time and transaction errors.
+   *Verified Content:* Enterprise exit from eight physical data centers; environment build times reduced from ~3 months to minutes; 70% decrease in disaster recovery testing duration; 50% decrease in critical incident resolution time.
 2. **Capital One Tech.** (2019). *Moving a Customer-Facing App to AWS*. [Capital One Technology Blog](https://www.capitalone.com/tech/cloud/moving-customer-facing-apps-to-aws/).  
-   *Verified Content:* Application-specific migration of customer-facing mobile banking servicing backend; microexperience decoupling; custom AMIs with Ansible; Route 53 weighted canary traffic shifting (1% to 50/50); multi-region active/active deployment.
+   *Verified Content:* Mobile servicing application migration; microexperience decoupling; custom AMIs; Amazon Route 53 weighted canary traffic shifting (1% to 50/50); multi-region active/active deployment.
 3. **Amazon.** (2016, November 28). *Capital One Selects AWS as Its Predominant Cloud Infrastructure Provider*. [Amazon Press Center](https://press.aboutamazon.com/2016/11/capital-one-selects-aws-as-its-predominant-cloud-infrastructure-provider).  
-   *Verified Content:* Formal strategic announcement selecting AWS as predominant cloud provider; corporate cloud-first mandate and digital transformation vision.
+   *Verified Content:* Strategic cloud mandate selecting AWS as primary provider; enterprise digital banking modernization.
+4. **Apache Software Foundation.** (2024). *ApacheBench (`ab`) & Apache JMeter User Manuals*. [apache.org](https://httpd.apache.org/docs/2.4/programs/ab.html).
 
 ---
 
-**Course:** IT457 – Cloud Computing  
-**Institution:** DA-IICT  
-**Case Study:** Capital One – Enterprise Migration to AWS
+**Course**: IT457 – Cloud Computing  
+**Institution**: Dhirubhai Ambani Institute of Information and Communication Technology (DA-IICT)  
+**Case Study Project**: Group 41 — Capital One AWS Cloud Migration
