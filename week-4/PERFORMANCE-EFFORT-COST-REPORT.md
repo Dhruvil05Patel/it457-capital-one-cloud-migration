@@ -42,7 +42,50 @@ This report delivers a rigorous comparison between CloudBank's **local container
 
 ## 1. Experimental Methodology & Benchmark Setup
 
-### 1.1 Benchmark Tooling & Scenarios
+### 1.1 Architecture Topologies (Local Docker vs. AWS Cloud)
+
+Detailed architecture diagrams with full security group mappings and data flows are documented in **[ARCHITECTURE-DIAGRAMS.md](./ARCHITECTURE-DIAGRAMS.md)**.
+
+#### Local Docker Architecture (Co-Located Container Baseline)
+```mermaid
+flowchart TD
+    Browser["User Web Browser"] -- "HTTP :80" --> Nginx["Frontend: cloudbank_client (Nginx:Alpine)"]
+    Nginx -- "Reverse Proxy: /api/*" --> Express["Backend: cloudbank_api (Node.js Express)"]
+    Express -- "PostgreSQL Protocol (:5432)" --> Postgres["Database: cloudbank_db (Postgres 16)"]
+    Postgres -- "Persistent Volume" --> Volume[("Named Volume: postgres_data")]
+
+    classDef comp fill:#e1f5fe,stroke:#0288d1,stroke-width:2px;
+    class Browser,Nginx,Express,Postgres comp;
+```
+
+#### AWS Cloud Modernized Architecture (Option A - Capital One Pattern)
+```mermaid
+flowchart TD
+    Users["Client Browsers (Internet)"] -- "HTTP (Port 80)" --> IGW["Internet Gateway"]
+    IGW --> EC2SG["Security Group: cloudbank-ec2-sg"]
+    
+    subgraph EC2["Amazon EC2: t3.micro (35.154.113.220)"]
+        NginxCloud["Frontend: cloudbank_client (Nginx)"]
+        ExpressCloud["Backend: cloudbank_api (Node Express)"]
+        NginxCloud -- "Reverse Proxy :3000" --> ExpressCloud
+    end
+    
+    EC2SG --> NginxCloud
+    ExpressCloud -- "PostgreSQL :5432 + TLSv1.3 SSL" --> RDSSG["Security Group: cloudbank-rds-sg"]
+    
+    subgraph RDS["Amazon RDS: db.t3.micro (Private to VPC)"]
+        PostgresRDS["PostgreSQL 16.15 Engine"]
+        StorageRDS[("Managed Storage: 20 GB gp3")]
+        PostgresRDS --> StorageRDS
+    end
+    
+    RDSSG --> PostgresRDS
+    
+    classDef aws fill:#ede7f6,stroke:#512da8,stroke-width:2px;
+    class EC2,RDS,EC2SG,RDSSG aws;
+```
+
+### 1.2 Benchmark Tooling & Scenarios
 Testing was conducted using **Apache Bench (`ab` v2.3)**, a high-precision HTTP benchmarking harness:
 - **Scenario A (Standard Concurrency Comparison)**: 1,000 total requests, 10 concurrent clients (`-n 1000 -c 10`) evaluated across both Local Docker and AWS Cloud.
 - **Scenario B (Local Scalability Stress Test)**: 5,000 and 10,000 total requests at 50–100 concurrency executed locally to identify system saturation limits without incurring cloud egress or compute charges.
