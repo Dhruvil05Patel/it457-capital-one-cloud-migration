@@ -7,7 +7,13 @@ const { Pool } = pg;
 
 // Establish database configuration with sensible defaults
 const poolConfig = process.env.DATABASE_URL
-  ? { connectionString: process.env.DATABASE_URL }
+  ? {
+      connectionString: process.env.DATABASE_URL,
+      ssl:
+        process.env.DATABASE_URL.includes('rds.amazonaws.com') || process.env.PGSSL === 'true'
+          ? { rejectUnauthorized: false }
+          : undefined,
+    }
   : {
       host: process.env.PGHOST || 'localhost',
       port: Number(process.env.PGPORT) || 5432,

@@ -1,0 +1,51 @@
+# ==============================================================================
+# CloudBank — Frontend Client Dockerfile (Multi-stage Build)
+# IT457 Cloud Computing | Week 3 | Group 41
+# Author: Aryan Rathod (202301164) — Docker, Deployment & Infrastructure
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Stage 1: Build static React + Vite bundle
+# ------------------------------------------------------------------------------
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Copy client dependencies descriptor
+COPY client/package.json ./
+
+# Install build dependencies
+RUN npm install
+
+# Copy client build configurations and source files
+COPY client/vite.config.js client/index.html ./
+COPY client/src ./src
+
+# Set build-time API base URL (Nginx handles /api reverse proxying)
+ENV VITE_API_BASE_URL=/api
+
+# Compile production bundle into /app/dist
+RUN npm run build
+
+# ------------------------------------------------------------------------------
+# Stage 2: Serve via Nginx with API reverse proxy
+# ------------------------------------------------------------------------------
+FROM nginx:alpine
+
+# Remove default site configuration
+RUN rm -rf /etc/nginx/conf.d/default.conf
+
+# Copy custom Nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Copy static assets from builder stage
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Expose port 80 for HTTP access
+EXPOSE 80
+
+# Health check querying the Nginx root endpoint on IPv4 loopback
+HEALTHCHECK --interval=10s --timeout=5s --start-period=3s --retries=3 \
+  CMD wget -qO- http://127.0.0.1:80/ || exit 1
+
+CMD ["nginx", "-g", "daemon off;"]
