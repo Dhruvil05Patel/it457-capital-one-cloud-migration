@@ -1,0 +1,65 @@
+# ==============================================================================
+# CloudBank — AWS EC2 & Amazon RDS Compose Orchestration
+# IT457 Cloud Computing | Week 3 | Group 41
+# Author: Aryan Rathod (202301164) — Docker, Deployment & Infrastructure
+# ==============================================================================
+# Architecture:
+#   1. backend:  Node.js Express REST API connected to managed Amazon RDS for PostgreSQL.
+#                Local database container is omitted to preserve EC2 memory (t3.micro).
+#   2. frontend: React + Vite web client served via Nginx on port 80, reverse-proxying
+#                /api/* requests internally to the backend container.
+#   3. Network:  Private bridge network (cloudbank_net).
+# ==============================================================================
+
+version: '3.8'
+
+services:
+  # ----------------------------------------------------------------------------
+  # Express Backend API Service (Connected to Amazon RDS PostgreSQL)
+  # ----------------------------------------------------------------------------
+  backend:
+    container_name: cloudbank_api
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    environment:
+      PORT: 3000
+      NODE_ENV: production
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL must be set to the Amazon RDS connection string}
+      SUSPICIOUS_THRESHOLD_PAISE: ${SUSPICIOUS_THRESHOLD_PAISE:-5000000}
+    ports:
+      - "3000:3000"
+    networks:
+      - cloudbank_net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  # ----------------------------------------------------------------------------
+  # React + Vite Frontend Client Service (Nginx Reverse Proxy)
+  # ----------------------------------------------------------------------------
+  frontend:
+    container_name: cloudbank_client
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile.client
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - cloudbank_net
+
+# ------------------------------------------------------------------------------
+# Internal Private Bridge Network
+# ------------------------------------------------------------------------------
+networks:
+  cloudbank_net:
+    driver: bridge
+    name: cloudbank_network

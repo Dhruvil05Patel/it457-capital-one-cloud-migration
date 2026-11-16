@@ -133,3 +133,18 @@ Before merging or deploying to EC2, all members verify this standard smoke test:
 
 - **Database Connection Retries**:
   The backend API waits for PostgreSQL to become healthy before starting (`depends_on: postgres: condition: service_healthy`). If Postgres takes longer than 5 seconds on initial volume initialization, Compose automatically retries until healthy.
+
+---
+
+## 🌐 AWS Cloud Deployment (Capital One Migration Modernization)
+
+For the complete AWS Free Tier deployment runbook demonstrating modernization from local servers to **Amazon EC2 (`t3.micro`)** and **Amazon RDS for PostgreSQL (`db.t3.micro`)** with defense-in-depth VPC security groups and CloudWatch monitoring, see:
+
+👉 **[AWS Deployment Runbook (DEPLOYMENT.md)](./DEPLOYMENT.md)**
+
+Includes:
+- Step-by-step AWS Management Console & CLI instructions
+- Defense-in-depth security group topology (`cloudbank-ec2-sg` and `cloudbank-rds-sg`)
+- Dedicated AWS Compose configuration (`docker-compose.aws.yml`)
+- CloudWatch metrics checklist
+- Cost-zero teardown and cleanup commands

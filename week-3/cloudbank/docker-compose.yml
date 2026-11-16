@@ -50,12 +50,12 @@ services:
     environment:
       PORT: 3000
       NODE_ENV: ${NODE_ENV:-production}
-      PGHOST: postgres
-      PGPORT: 5432
+      PGHOST: ${PGHOST:-postgres}
+      PGPORT: ${PGPORT:-5432}
       PGUSER: ${PGUSER:-cloudbank}
       PGPASSWORD: ${PGPASSWORD:-cloudbank_secret}
       PGDATABASE: ${PGDATABASE:-cloudbank}
-      DATABASE_URL: postgres://${PGUSER:-cloudbank}:${PGPASSWORD:-cloudbank_secret}@postgres:5432/${PGDATABASE:-cloudbank}
+      DATABASE_URL: ${DATABASE_URL:-postgres://${PGUSER:-cloudbank}:${PGPASSWORD:-cloudbank_secret}@postgres:5432/${PGDATABASE:-cloudbank}}
       SUSPICIOUS_THRESHOLD_PAISE: ${SUSPICIOUS_THRESHOLD_PAISE:-5000000}
     ports:
       - "3000:3000"
